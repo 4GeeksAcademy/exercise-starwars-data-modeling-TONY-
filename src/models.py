@@ -7,26 +7,68 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class Usuario(Base):
+    __tablename__ = 'usuario'
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    id = Column(Integer, unique=True, primary_key=True)
+    name = Column(String(250), unique=False, nullable=False)
+    last_name = Column(String(250), unique=False, nullable=False)
+    email = Column(String(250), unique=True, nullable=False)
+    password = Column(String(250), unique=False, nullable=False)
+    subscription_date = Column(Integer, unique=False, nullable=True)
+    favorito = relationship('Favorito')
+    
 
     def to_dict(self):
-        return {}
+        return {
+              "id": self.id,
+              "name": self.name,
+              "last_name": self.last_name,
+              "email": self.email,
+              "subscription_date": self.subscription_date
+        }
+
+class Personaje(Base):
+    __tablename__ = 'personaje'
+
+    id = Column(Integer, unique=True, primary_key=True)
+    name = Column(String(250), unique=False, nullable=False)
+    race = Column(String(250), unique=False, nullable=False)
+    favorito = relationship("favorito")
+
+    def to_dict(self):
+        return {
+            "id" : self.id,
+            "name" : self.name, 
+            "race" : self.race
+        }
+
+class Planeta(Base):
+    __tablename__ = 'planeta'
+
+    id = Column(Integer, unique=True, primary_key=True)
+    name = Column(String(250), unique=False, nullable=False)
+    favorito = relationship("favorito")
+
+    def to_dict(self):
+        return {
+            "id" : self.id,
+            "name" : self.name
+        }
+
+class Favorito(Base):
+    __tablename__ = 'favorito'
+    id = Column(Integer, unique=True, primary_key=True)
+    id_usuario= Column(Integer, ForeignKey("usuario.id"))
+    id_planeta= Column(Integer, ForeignKey("planeta.id"))
+    id_personaje= Column(Integer, ForeignKey("personaje.id"))
+
+
+    def to_dict(self):
+        return {
+            "id_planeta" : self.id_planeta,
+            "id_personaje" : self.id_personaje
+        }
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
